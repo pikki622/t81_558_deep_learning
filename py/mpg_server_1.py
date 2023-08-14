@@ -42,32 +42,31 @@ def calc_mpg():
         errors.append(f"Unexpected field: {name}.")
 
     # Check for missing input fields
-    for name in EXPECTED:
-      if name not in content:
-        errors.append(f"Missing value: {name}.")
+    errors.extend(
+        f"Missing value: {name}." for name in EXPECTED if name not in content
+    )
+    if not errors:
+        # Predict
+        x = np.zeros( (1,7) )
 
-    if len(errors) <1:
-      # Predict
-      x = np.zeros( (1,7) )
+        x[0,0] = content['cylinders']
+        x[0,1] = content['displacement'] 
+        x[0,2] = content['horsepower']
+        x[0,3] = content['weight']
+        x[0,4] = content['acceleration'] 
+        x[0,5] = content['year']
+        x[0,6] = content['origin']
 
-      x[0,0] = content['cylinders']
-      x[0,1] = content['displacement'] 
-      x[0,2] = content['horsepower']
-      x[0,3] = content['weight']
-      x[0,4] = content['acceleration'] 
-      x[0,5] = content['year']
-      x[0,6] = content['origin']
-
-      pred = model.predict(x)
-      mpg = float(pred[0])
-      response = {"id":str(uuid.uuid4()),"mpg":mpg,"errors":errors}
+        pred = model.predict(x)
+        mpg = float(pred[0])
+        response = {"id":str(uuid.uuid4()),"mpg":mpg,"errors":errors}
     else:
-      # Return errors
-      response = {"id":str(uuid.uuid4()),"errors":errors}
+        # Return errors
+        response = {"id":str(uuid.uuid4()),"errors":errors}
 
 
     print(content['displacement'])
-    
+
     return jsonify(response)
 
 if __name__ == '__main__':
